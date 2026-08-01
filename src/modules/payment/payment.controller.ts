@@ -3,6 +3,7 @@ import httpStatus from "http-status";
 import { paymentService } from "./payment.service";
 import { catchAsync } from "../../utils/catchAsync";
 import { NextFunction, Request, Response } from "express";
+import config from "../../config";
 const createPayment = catchAsync(async (req, res) => {
   const customerId = req.user?.id as string;
   const payload = req.body;
@@ -27,11 +28,11 @@ const confirmPayment = catchAsync(
     );
 
     if (response === "success") {
-      res.redirect("https://web.programming-hero.com/dashboard");
+      res.redirect(`${config.frontend_url}/payment/success`);
     } else if (response === "fail") {
-      res.redirect("https://www.facebook.com");
+      res.redirect(`${config.frontend_url}/payment/failed`);
     } else if (response === "cancel") {
-      res.redirect("https://www.youtube.com");
+      res.redirect(`${config.frontend_url}/payment/cancel`);
     }
   },
 );
