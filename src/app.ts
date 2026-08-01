@@ -19,7 +19,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: config.app_url,
+    origin: config.frontend_url,
   }),
 );
 app.use(express.json());
