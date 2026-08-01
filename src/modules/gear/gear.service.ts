@@ -137,6 +137,11 @@ const getAllGear = async (query: IGearQuery) => {
       isAvailable: query.isAvailable,
     });
   }
+  if (query.providerId) {
+    andConditions.push({
+      providerId: query.providerId,
+    });
+  }
 
   const result = await prisma.gearItems.findMany({
     where: {
