@@ -17,6 +17,9 @@ export default {
   jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN!,
   sslcommerz_store_id: process.env.SSLCOMMERZ_STORE_ID!,
   sslcommerz_store_password: process.env.SSLCOMMERZ_STORE_PASSWORD!,
+  google_client_id: process.env.GOOGLE_CLIENT_ID!,
+  google_client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+  google_callback_url: process.env.GOOGLE_CALLBACK_URL!,
 
   tester_admin_name: process.env.TESTER_ADMIN_NAME!,
   tester_admin_email: process.env.TESTER_ADMIN_EMAIL!,

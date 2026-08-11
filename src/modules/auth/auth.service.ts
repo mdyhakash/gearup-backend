@@ -4,7 +4,7 @@ import { IAuthUser, IUpdateProfile } from "./auth.interface";
 import config from "../../config";
 import { jwtUtils } from "../../utils/jwt";
 import { JwtPayload, SignOptions } from "jsonwebtoken";
-
+import { createUserTokens } from "../../utils/authToken";
 
 const registerUser = async (payload: IAuthUser) => {
   const { name, email, password, role, profilePhoto } = payload;
@@ -53,38 +53,28 @@ const registerUser = async (payload: IAuthUser) => {
 const loginUser = async (payload: IAuthUser) => {
   const { email, password } = payload;
 
-  const user = await prisma.user.findFirstOrThrow({
-    where: { email },
-  });
+  const user = await prisma.user.findFirstOrThrow({ where: { email } });
 
-  //password match
+  if (!user.password) {
+    throw new Error(
+      `This account uses ${user.provider} sign-in. Please log in with ${user.provider.toLowerCase()}.`,
+    );
+  }
+
   const matchedPassowrd = await bcrypt.compare(password, user.password);
-  if (!matchedPassowrd) {
-    throw new Error("Invalid credintials");
-  }
+  if (!matchedPassowrd) throw new Error("Invalid credintials");
+  if (user.status === "BLOCKED") throw new Error("user is blocked");
 
-  if (user.status === "BLOCKED") {
-    throw new Error("user is blocked");
-  }
-  const jwtpayload = {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-  };
+  return createUserTokens(user);
+};
 
-  const accessToken = jwtUtils.createToken(
-    jwtpayload,
-    config.jwt_access_secret,
-    config.jwt_access_expires_in as SignOptions,
-  );
-  const refreshToken = jwtUtils.createToken(
-    jwtpayload,
-    config.jwt_refresh_secret,
-    config.jwt_refresh_expires_in as SignOptions,
-  );
-
-  return { accessToken, refreshToken };
+const loginWithGoogle = (user: {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}) => {
+  return createUserTokens(user);
 };
 
 const refreshToken = async (token: string) => {
@@ -167,6 +157,7 @@ const updateMyProfile = async (userId: string, payload: IUpdateProfile) => {
 export const authServices = {
   registerUser,
   loginUser,
+  loginWithGoogle,
   refreshToken,
   getMyProfile,
   updateMyProfile,

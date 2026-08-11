@@ -14,6 +14,8 @@ import {
 import { paymentRoutes } from "./modules/payment/payment.router";
 import { reviewRoutes } from "./modules/review/review.route";
 import { adminRoutes } from "./modules/admin/admin.route";
+import passport from "passport";
+import "./config/passport";
 
 const app = express();
 
@@ -30,6 +32,7 @@ app.use(
   }),
 );
 app.use(cookieParser());
+app.use(passport.initialize());
 
 app.get("/", (req, res) => {
   res.send("Hello World");

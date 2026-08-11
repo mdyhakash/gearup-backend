@@ -3,6 +3,9 @@ import { authServices } from "./auth.service";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status";
+import config from "../../config";
+import { User } from "../../../generated/prisma/client";
+import { clearAuthCookie, setAuthCookie } from "../../utils/authCookies";
 
 const registerUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -16,31 +19,22 @@ const registerUser = catchAsync(
   },
 );
 
-const loginUser = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const payload = req.body;
-    const { accessToken, refreshToken } = await authServices.loginUser(payload);
+const loginUser = catchAsync(async (req, res) => {
+  const { accessToken, refreshToken } = await authServices.loginUser(req.body);
+  setAuthCookie(res, { accessToken, refreshToken });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "User logged in successfully",
+    data: { accessToken, refreshToken },
+  });
+});
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "none",
-      maxAge: 1000 * 60 * 60 * 24,
-    });
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "none",
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    });
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      message: "User logged in successfully",
-      data: { accessToken, refreshToken },
-    });
-  },
-);
+const googleCallback = catchAsync(async (req, res) => {
+  const user = req.user as unknown as User;
+  const { accessToken, refreshToken } = authServices.loginWithGoogle(user);
+  setAuthCookie(res, { accessToken, refreshToken });
+  res.redirect(config.frontend_url as string);
+});
 
 const refreshToken = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -86,10 +80,21 @@ const updateMyProfile = catchAsync(
     });
   },
 );
+
+const logoutUser = catchAsync(async (req, res) => {
+  clearAuthCookie(res);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Logged out successfully",
+    data: null,
+  });
+});
 export const authController = {
   registerUser,
   loginUser,
+  googleCallback,
   refreshToken,
   getMyProfile,
   updateMyProfile,
+  logoutUser,
 };
