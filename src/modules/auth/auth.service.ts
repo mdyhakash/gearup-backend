@@ -1,13 +1,13 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../../lib/prisma";
-import { IAuthUser } from "./auth.interface";
+import { IAuthUser, IUpdateProfile } from "./auth.interface";
 import config from "../../config";
 import { jwtUtils } from "../../utils/jwt";
 import { JwtPayload, SignOptions } from "jsonwebtoken";
-import { Role } from "../../../generated/prisma/enums";
+
 
 const registerUser = async (payload: IAuthUser) => {
-  const { name, email, password,role, profilePhoto } = payload;
+  const { name, email, password, role, profilePhoto } = payload;
 
   //check user exits
   const isUserExists = await prisma.user.findUnique({
@@ -134,9 +134,40 @@ const getMyProfile = async (userId: string) => {
   });
   return profile;
 };
+
+const updateMyProfile = async (userId: string, payload: IUpdateProfile) => {
+  const { name, phone, address, bio, profilePhoto } = payload;
+
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...(name !== undefined && { name }),
+      ...(phone !== undefined && { phone }),
+      ...(address !== undefined && { address }),
+      profile: {
+        upsert: {
+          create: { bio, profilePhoto },
+          update: {
+            ...(bio !== undefined && { bio }),
+            ...(profilePhoto !== undefined && { profilePhoto }),
+          },
+        },
+      },
+    },
+    omit: {
+      password: true,
+    },
+    include: {
+      profile: true,
+    },
+  });
+
+  return updated;
+};
 export const authServices = {
   registerUser,
   loginUser,
   refreshToken,
   getMyProfile,
+  updateMyProfile,
 };

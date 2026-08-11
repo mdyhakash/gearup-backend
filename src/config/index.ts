@@ -17,4 +17,16 @@ export default {
   jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN!,
   sslcommerz_store_id: process.env.SSLCOMMERZ_STORE_ID!,
   sslcommerz_store_password: process.env.SSLCOMMERZ_STORE_PASSWORD!,
+
+  tester_admin_name: process.env.TESTER_ADMIN_NAME!,
+  tester_admin_email: process.env.TESTER_ADMIN_EMAIL!,
+  tester_admin_password: process.env.TESTER_ADMIN_PASSWORD!,
+
+  tester_customer_name: process.env.TESTER_CUSTOMER_NAME!,
+  tester_customer_email: process.env.TESTER_CUSTOMER_EMAIL!,
+  tester_customer_password: process.env.TESTER_CUSTOMER_PASSWORD!,
+
+  tester_provider_name: process.env.TESTER_PROVIDER_NAME!,
+  tester_provider_email: process.env.TESTER_PROVIDER_EMAIL!,
+  tester_provider_password: process.env.TESTER_PROVIDER_PASSWORD!,
 };

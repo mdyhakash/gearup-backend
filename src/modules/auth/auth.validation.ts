@@ -27,7 +27,20 @@ const LoginZodSchema = z.object({
   password: z.string("Password is required").min(1, "Password is required"),
 });
 
+const UpdateProfileZodSchema = z.object({
+  name: z
+    .string()
+    .min(3, "Name must be at least 3 characters long")
+    .max(50)
+    .optional(),
+  phone: z.string().max(20).optional().nullable(),
+  address: z.string().max(255).optional().nullable(),
+  bio: z.string().max(500).optional().nullable(),
+  profilePhoto: z.string().optional().nullable(),
+});
+
 export const AuthValidation = {
   RegisterZodSchema,
   LoginZodSchema,
+  UpdateProfileZodSchema,
 };

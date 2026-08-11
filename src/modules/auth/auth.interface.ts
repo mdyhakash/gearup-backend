@@ -8,3 +8,10 @@ export interface IAuthUser {
   profilePhoto?: string;
   bio?: string;
 }
+export interface IUpdateProfile {
+  name?: string;
+  phone?: string | null;
+  address?: string | null;
+  bio?: string | null;
+  profilePhoto?: string | null;
+}
