@@ -27,7 +27,14 @@ router.get(
   }),
 );
 
-router.get("/google/callback", authController.googleCallback);
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    session: false,
+    failureRedirect: `${config.frontend_url}/login?error=google-auth-failed`,
+  }),
+  authController.googleCallback,
+);
 
 router.post("/refresh-token", authController.refreshToken);
 router.post("/logout", authController.logoutUser);

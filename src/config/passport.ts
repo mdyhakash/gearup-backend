@@ -53,14 +53,7 @@ passport.use(
           return done(new Error("Your account has been blocked."));
         }
 
-        const authUser: Express.User = {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        };
-
-        return done(null, authUser);
+        return done(null, user);
       } catch (error) {
         return done(error as Error);
       }
