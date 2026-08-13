@@ -4,8 +4,9 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status";
 import config from "../../config";
-import { User } from "../../../generated/prisma/client";
 import { clearAuthCookie, setAuthCookie } from "../../utils/authCookies";
+import { createUserTokens } from "../../utils/authToken";
+import passport from "passport";
 
 const registerUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -29,12 +30,34 @@ const loginUser = catchAsync(async (req, res) => {
   });
 });
 
-const googleCallback = catchAsync(async (req, res) => {
-  const user = req.user as unknown as User;
-  const { accessToken, refreshToken } = authServices.loginWithGoogle(user);
-  setAuthCookie(res, { accessToken, refreshToken });
-  res.redirect(config.frontend_url as string);
-});
+const googleCallback = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate(
+      "google",
+      { session: false },
+      async (err: any, user: any, info: any) => {
+        try {
+          if (err || !user) {
+            return res.redirect(
+              `${config.frontend_url}/login?error=google-auth-failed`,
+            );
+          }
+
+          const { accessToken, refreshToken } =
+            authServices.loginWithGoogle(user);
+
+          const redirectUrl = new URL(`${config.frontend_url}/auth/success`);
+          redirectUrl.searchParams.set("accessToken", accessToken);
+          redirectUrl.searchParams.set("refreshToken", refreshToken);
+
+          res.redirect(redirectUrl.toString());
+        } catch (error) {
+          next(error);
+        }
+      },
+    )(req, res, next);
+  },
+);
 
 const refreshToken = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {

@@ -8,13 +8,11 @@ import { prisma } from "../lib/prisma";
 
 declare global {
   namespace Express {
-    interface Request {
-      user?: {
-        email: string;
-        name: string;
-        id: string;
-        role: Role;
-      };
+    interface User {
+      email: string;
+      name: string;
+      id: string;
+      role: Role;
     }
   }
 }
