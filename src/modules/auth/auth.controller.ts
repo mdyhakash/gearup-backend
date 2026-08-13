@@ -43,12 +43,7 @@ const refreshToken = catchAsync(
     const token = req.cookies.refreshToken;
     const { accessToken } = await authServices.refreshToken(token);
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "none",
-      maxAge: 1000 * 60 * 60 * 24,
-    });
+    setAuthCookie(res, { accessToken });
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
